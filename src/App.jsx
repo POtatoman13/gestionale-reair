@@ -9,7 +9,7 @@ import {
 const App = () => {
   // --- CONFIGURAZIONE GEMINI API ---
   // Inserisci qui la tua chiave API ottenuta da https://aistudio.google.com/app/apikey
-  const apiKey = ""; 
+  const apiKey = "AIzaSyBhaSB7be2AZmzk-EjjzRaH4VDUZd5V3So"; 
   
   // Utilizziamo il modello 1.5 Flash: stabile e pienamente supportato
   const MODEL_NAME = "gemini-1.5-flash";
