@@ -11,7 +11,7 @@ const App = () => {
   // Inserisci qui la tua chiave API ottenuta da https://aistudio.google.com/app/apikey
   const apiKey = "AIzaSyBhaSB7be2AZmzk-EjjzRaH4VDUZd5V3So"; 
   
-  // Utilizziamo il modello gemini-1.5-flash che è il più compatibile
+  // Utilizziamo il modello stabile gemini-1.5-flash
   const MODEL_NAME = "gemini-1.5-flash";
 
   // --- PARAMETRI BUSINESS REAIR 2026 ---
@@ -96,7 +96,7 @@ const App = () => {
     };
   }, [kwp, selectedProductId, bonusFirma, vincolo96Mesi]);
 
-  // --- FUNZIONI AI CON GESTIONE ERRORI ---
+  // --- FUNZIONI AI CON ENDPOINT STABILE V1 ---
   const generateAI = async (type) => {
     if (!apiKey || apiKey.trim() === "") {
       setAiContent("Manca la chiave API alla riga 12. Incollala nel file su GitHub.");
@@ -107,20 +107,18 @@ const App = () => {
     setAiContent("");
     
     const userQuery = type === 'pitch' 
-      ? `Progetto: ${kwp}kWp con ${calculations.product.name}. Prezzo finale: €${calculations.prezzoScontatoCliente.toLocaleString()}. Detrazione 50%. Focus: ${calculations.product.focus}. Sconto firma e vincolo inclusi. Crea un pitch commerciale breve.`
-      : `Dati ambientali: ${calculations.kgNoxAbbattuti}kg NOx abbattuti, ${calculations.alberiEquivalenti} alberi equivalenti grazie a ReAir. Genera un breve report ESG.`;
-    
-    const systemPrompt = "Sei un direttore commerciale ReAir. Rispondi sempre in italiano. Sii persuasivo, tecnico e brevissimo (max 3 righe).";
+      ? `Agisci come Direttore Commerciale ReAir. Crea un PITCH DI VENDITA in italiano (max 3 righe) per un impianto fotovoltaico da ${kwp}kWp trattato con ${calculations.product.name}. Prezzo netto: €${calculations.costoNettoCliente.toLocaleString()}. Vantaggi: detrazione 50%, protezione 8 anni, extra resa +15%.`
+      : `Agisci come esperto ESG ReAir. Crea un breve REPORT ESG in italiano (max 3 righe) basato su questi dati: ${calculations.kgNoxAbbattuti}kg NOx abbattuti e ${calculations.alberiEquivalenti} alberi equivalenti grazie al trattamento nanotecnologico dell'impianto fotovoltaico.`;
 
-    const fetchWithRetry = async (retries = 3, delay = 1000) => {
+    const fetchWithRetry = async (retries = 2, delay = 1000) => {
       try {
         const cleanKey = apiKey.trim();
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${cleanKey}`, {
+        // Usiamo l'endpoint v1 STABILE invece di v1beta
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${MODEL_NAME}:generateContent?key=${cleanKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: userQuery }] }],
-            systemInstruction: { parts: [{ text: systemPrompt }] }
+            contents: [{ parts: [{ text: userQuery }] }]
           })
         });
 
@@ -148,7 +146,7 @@ const App = () => {
       setAiContent(result);
     } catch (e) {
       console.error(e);
-      setAiContent(`Errore: ${e.message}. Verifica che il modello ${MODEL_NAME} sia attivo nel tuo account Google AI Studio.`);
+      setAiContent(`Errore tecnico: ${e.message}. Verifica che la chiave API sia corretta.`);
     } finally {
       setIsAiLoading(false);
     }
@@ -160,7 +158,7 @@ const App = () => {
       {/* NAVBAR */}
       <nav className={`sticky top-0 z-30 border-b px-4 md:px-6 py-4 flex justify-between items-center ${isClientMode ? 'bg-slate-900/90 border-slate-800 backdrop-blur-md' : 'bg-white border-slate-200 shadow-sm'}`}>
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 text-white"><Sun className="w-5 h-5" /></div>
+          <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 text-white"><Sun className="text-white w-5 h-5" /></div>
           <div>
             <h1 className="text-lg font-black tracking-tighter uppercase leading-none">ReAir <span className={isClientMode ? 'text-blue-400' : 'text-blue-600'}>Field</span></h1>
             <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest leading-none mt-1">{isClientMode ? 'Presentazione' : 'Partner Dashboard'}</p>
