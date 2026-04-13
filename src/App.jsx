@@ -11,7 +11,7 @@ const App = () => {
   // Inserisci qui la tua chiave API ottenuta da https://aistudio.google.com/app/apikey
   const apiKey = "AIzaSyBhaSB7be2AZmzk-EjjzRaH4VDUZd5V3So"; 
   
-  // Utilizziamo il modello 1.5 Flash: stabile e pienamente supportato
+  // Utilizziamo il modello gemini-1.5-flash che è il più compatibile
   const MODEL_NAME = "gemini-1.5-flash";
 
   // --- PARAMETRI BUSINESS REAIR 2026 ---
@@ -114,7 +114,8 @@ const App = () => {
 
     const fetchWithRetry = async (retries = 3, delay = 1000) => {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
+        const cleanKey = apiKey.trim();
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${cleanKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -147,7 +148,7 @@ const App = () => {
       setAiContent(result);
     } catch (e) {
       console.error(e);
-      setAiContent(`Intoppo Tecnico: ${e.message}. Verifica la chiave API.`);
+      setAiContent(`Errore: ${e.message}. Verifica che il modello ${MODEL_NAME} sia attivo nel tuo account Google AI Studio.`);
     } finally {
       setIsAiLoading(false);
     }
@@ -293,7 +294,7 @@ const App = () => {
                 </button>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-6 text-inherit">
               {aiContent ? (
                 <div className={`p-4 rounded-2xl flex gap-4 ${isClientMode ? 'bg-slate-900/50' : 'bg-blue-50'}`}>
                   <MessageSquare className="w-6 h-6 text-blue-500 shrink-0" />
@@ -308,10 +309,10 @@ const App = () => {
           {/* QUOTE CARD */}
           <div className={`rounded-[40px] shadow-2xl overflow-hidden border transition-all ${isClientMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
             <div className="p-8 flex justify-between items-center bg-blue-600 text-white">
-              <div className="flex items-center gap-4 text-white">
+              <div className="flex items-center gap-4 text-white text-inherit">
                 <div className="bg-white/20 p-3 rounded-2xl"><ShieldCheck className="w-8 h-8" /></div>
                 <div>
-                  <h2 className="text-2xl font-black tracking-tighter leading-tight text-white">Proposta Economica</h2>
+                  <h2 className="text-2xl font-black tracking-tighter leading-tight text-white text-inherit">Proposta Economica</h2>
                   <p className="text-[10px] font-black opacity-60 uppercase tracking-widest text-white/80">Efficientamento Certificato</p>
                 </div>
               </div>
@@ -322,10 +323,10 @@ const App = () => {
 
             <div className="p-8 md:p-10 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
               {/* MONEY AREA */}
-              <div className="md:col-span-5 space-y-6">
+              <div className="md:col-span-5 space-y-6 text-inherit">
                 <div className="relative">
                   <div className={`p-6 rounded-3xl border-2 text-center transition-all ${isClientMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}>
-                    <span className="text-[10px] font-black opacity-40 uppercase block mb-1 tracking-widest">Valore Listino</span>
+                    <span className="text-[10px] font-black opacity-40 uppercase block mb-1 tracking-widest text-inherit">Valore Listino</span>
                     <span className="text-lg font-black opacity-20 line-through">€ {calculations.prezzoSenzaSconti.toLocaleString()}</span>
                     <span className={`text-3xl font-black block mt-1 ${isClientMode ? 'text-white' : 'text-slate-900'}`}>€ {calculations.prezzoScontatoCliente.toLocaleString()}</span>
                   </div>
@@ -340,7 +341,7 @@ const App = () => {
                 </div>
 
                 <div className="p-8 bg-green-600 rounded-[32px] text-white shadow-2xl transform hover:scale-105 transition-all text-center">
-                  <span className="text-[10px] font-black opacity-60 uppercase block mb-1 tracking-widest text-white/80">Investimento Netto Reale</span>
+                  <span className="text-[10px] font-black opacity-60 uppercase block mb-1 tracking-widest text-white/80 text-inherit">Investimento Netto Reale</span>
                   <span className="text-4xl font-black tracking-tighter text-white">€ {calculations.costoNettoCliente.toLocaleString()}</span>
                 </div>
               </div>
